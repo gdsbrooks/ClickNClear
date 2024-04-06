@@ -51,13 +51,13 @@ If you would prefer this to not be public.
 2) Clone this repository via: `git clone https://github.com/ClicknClear/FullStack-Tech-Test.git`
 3) In the root directory of the cloned repo, run `git remote set-url origin https://github.com/<your-username>/ClicknClear-FullStack-Tech-Test.git`
 4) Carry out the test.
-5) Once the test is complete, add `techteam@clicknclear.com` as a contributor to your private repository.
+5) Once the test is complete, add [Jack](https://github.com/jackbinney) and [Tristan](https://github.com/TristanBarlow) as contributors to your private repository.
 
 ### Publicly
 If you're happy for this test to be visible publicly.
 1) Fork this repository.
 2) Carry out the test.
-3) Once the test is complete, email `techteam@clicknclear.com` with a link to your public repository.
+3) Once the test is complete, email `jack@clicknclear.com` and `tristan@clicknclear.com` with a link to your public repository.
 
 ### Incomplete Submission
 If you cannot complete this test, we accept incomplete submissions. To do this, please submit as normal as per the steps outlined above.
