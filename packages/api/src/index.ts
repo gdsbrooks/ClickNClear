@@ -13,7 +13,7 @@ const PORT = Number(process.env.PORT) || 8888;
 
 const port: number = PORT;
 
-app.use(cors({origin: 'http://localhost:3000'}))
+app.use(cors({origin: 'http://localhost:5173'}))
 
 
 /* ROUTES */
@@ -35,7 +35,7 @@ app.get("/tracks", (req: Request, res: Response) => {
         data = data.filter((track) => track.title.trim().toLowerCase().includes(title.trim().toLowerCase()))
     }
     /* Return filtered tracks */
-    res.json({data});
+    res.json(data);
 });
 
 /* Given a track id return the associated track. */
@@ -49,12 +49,9 @@ app.get("/tracks/:trackId", (req: Request, res: Response,) => {
         res.status(400).json({error: "INVALID_TRACK_ID"})
     }
 
-    let data: Track[] = tracks
+    let data: Track[] = [tracks[trackId-1]];
 
-    /* Filter tracks by ID and return */
-    const result = data.filter((t) => t.id === trackId)
-
-    res.json({data: result})
+    setTimeout(() => res.json(data), 1500)
 })
 
 /* 404 error route */
