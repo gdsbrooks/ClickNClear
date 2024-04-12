@@ -3,8 +3,12 @@ import {useEffect, useState} from "react";
 import {fetchTrackById} from "../fetchApi.tsx";
 
 const TrackCard = ({trackId}: { trackId: number }) => {
+
+    /* Initalize state for track and loading boolean */
     const [track, setTrack] = useState<Track>({id: 0, artist: '', title: ''});
     const [trackLoading, setTrackLoading] = useState(true);
+
+    /*Fetch track from API initally and each time component props (trackId) changes*/
     useEffect(() => {
         const getSingleTrack = async () => {
             const result = await fetchTrackById(trackId)
@@ -12,6 +16,7 @@ const TrackCard = ({trackId}: { trackId: number }) => {
             setTrackLoading(false)
 
         }
+        /*Drive everybody crazy with an intentionally slow API call */
         setTrackLoading(true)
         getSingleTrack()
     }, [trackId]);

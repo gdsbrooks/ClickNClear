@@ -30,7 +30,7 @@ app.get("/tracks", (req: Request, res: Response) => {
     if (artist && typeof artist === "string") {
         data = data.filter((track) => track.artist.trim().toLowerCase().includes(artist.trim().toLowerCase()))
     }
-    /* Why not filter by title too, just for kicks? */
+    /* Why not filter by title too, just for kicks? -- not implemented in MVP frontend */
     if (title && typeof title === "string") {
         data = data.filter((track) => track.title.trim().toLowerCase().includes(title.trim().toLowerCase()))
     }

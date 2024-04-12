@@ -11,6 +11,7 @@ function App() {
     const [results, setResults] = useState<Track[]>([]);
     const [input, setInput] = useState("");
     const [trackId, setTrackId] = useState<number>(0);
+
     /* Initial data fetch */
     useEffect(() => {
             const initialFetch = async () => {
