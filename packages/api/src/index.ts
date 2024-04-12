@@ -49,9 +49,11 @@ app.get("/tracks/:trackId", (req: Request, res: Response,) => {
         res.status(400).json({error: "INVALID_TRACK_ID"})
     }
 
+    /*pick specific track by id (0-index shift). */
     let data: Track[] = [tracks[trackId-1]];
 
-    setTimeout(() => res.json(data), 1500)
+    /*Return array of 1 track(s) */
+    res.json(data);
 })
 
 /* 404 error route */

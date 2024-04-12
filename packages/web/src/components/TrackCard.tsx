@@ -29,10 +29,7 @@ const TrackCard = ({trackId}: { trackId: number }) => {
 
             {trackLoading
                 ? (
-                    <div>Fetching track details...
-                        <br/>This API is so slow!
-                        <br/>Almost like it take 1500ms each time...
-                    </div>
+                    <div>Fetching track details...</div>
                 )
                 : (
                     <div>
