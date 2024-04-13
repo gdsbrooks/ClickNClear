@@ -4,6 +4,7 @@
   "description": "Basic react app with param and querystring api calls.",
   "main": "index.js",
   "scripts": {
+    "start": "concurrently \"npm run dev -w api\" \"npm run dev -w web\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -13,5 +14,8 @@
     "packages/api",
     "packages/types",
     "packages/web"
-  ]
+  ],
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
 }

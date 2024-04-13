@@ -1,9 +1,9 @@
 import cors from 'cors';
 import dotenv from 'dotenv';
 import express, {Express, NextFunction, Request, Response} from 'express';
-
-import {Track, TrackFilters} from 'types';
-import {tracks} from '../db/tracks.json' ;
+import {AppDataSource, Artist, Track} from './db'
+import {ILike} from "typeorm";
+import {TrackFilters} from 'types';
 
 dotenv.config();
 
@@ -18,28 +18,33 @@ app.use(cors({origin: 'http://localhost:5173'}))
 
 /* ROUTES */
 
-app.get("/tracks", (req: Request, res: Response) => {
+app.get("/tracks", async (req: Request, res: Response) => {
 
     /* Destructure querystring filters */
     const {artist, title}: TrackFilters = req.query;
 
-    /* Get ALL tracks */
-    let data: Track[] = tracks;
+    // /* Get ALL tracks */
+    // let data: Track[] = tracks;
 
-    /* Given an artist name return _all_ associated tracks. */
+    // /* TYPE-ORM: Initiate QueryBuilder */
+    const data = await AppDataSource.getRepository(Track)
+        .createQueryBuilder("track")
+        .getMany()
+
+    /*Add WHERE ILIKE qs.artist */
     if (artist && typeof artist === "string") {
-        data = data.filter((track) => track.artist.trim().toLowerCase().includes(artist.trim().toLowerCase()))
     }
-    /* Why not filter by title too, just for kicks? -- not implemented in MVP frontend */
+
+    /*Add WHERE ILIKE qs.title */
     if (title && typeof title === "string") {
-        data = data.filter((track) => track.title.trim().toLowerCase().includes(title.trim().toLowerCase()))
     }
+
     /* Return filtered tracks */
     res.json(data);
 });
 
 /* Given a track id return the associated track. */
-app.get("/tracks/:trackId", (req: Request, res: Response,) => {
+app.get("/tracks/:trackId", async (req: Request, res: Response,) => {
 
     /*Parse trackId param to integer */
     const trackId = Number.parseInt(req.params.trackId)
@@ -49,8 +54,13 @@ app.get("/tracks/:trackId", (req: Request, res: Response,) => {
         res.status(400).json({error: "INVALID_TRACK_ID"})
     }
 
-    /*pick specific track by id (0-index shift). */
-    let data: Track[] = [tracks[trackId-1]];
+    // /*pick specific track by id (0-index shift). */
+    // let data: Track[] = [tracks[trackId-1]];
+
+    const data = await AppDataSource.getRepository(Track)
+        .createQueryBuilder("track")
+        .where("track.id = :id", {id: trackId})
+        .getOne()
 
     /*Return array of 1 track(s) */
     res.json(data);
