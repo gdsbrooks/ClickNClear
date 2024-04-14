@@ -1,11 +1,9 @@
+import axios, {AxiosResponse} from 'axios';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import express, {Express, NextFunction, Request, Response} from 'express';
 import {AppDataSource, Artist, Track} from './db'
 import {ILike} from "typeorm";
-import {TrackFilters} from 'types';
-import {ILike} from "typeorm";
-import {undefined} from "zod";
 
 dotenv.config();
 
@@ -17,7 +15,32 @@ const port: number = PORT;
 
 app.use(cors({origin: 'http://localhost:5173'}))
 
+/* Initiate internals */
+const internals: any = {};
 
+internals.getAlbumCover = async (artist: string, title: string): Promise<string | null> => {
+    const apiUrl = `https://ws.audioscrobbler.com//2.0/?method=track.getInfo&api_key=${process.env.LAST_FM_API_KEY}&artist=${encodeURIComponent(artist)}&track=${encodeURIComponent(title)}&format=json`
+    try {
+        const response: AxiosResponse = await axios(apiUrl);
+        const data = await response.data;
+        if (data && data.track && data.track.album && data.track.album.image && data.track.album.image.length > 0) {
+            return data.track.album.image.pop()['#text']; // Get the URL of the largest image available
+        } else {
+            return null; // No album cover found
+        }
+    } catch (error) {
+        console.error('Error fetching album cover:', error);
+        return null;
+    }
+};
+
+internals.updateAlbumCover = async (trackId: number, imageUrl: string) => {
+    await AppDataSource.createQueryBuilder()
+        .update(Track)
+        .set({image: imageUrl})
+        .where("id = :trackId", {trackId})
+        .execute()
+};
 /* ROUTES */
 
 app.get("/tracks", async (req: Request, res: Response) => {
@@ -43,23 +66,33 @@ app.get("/tracks", async (req: Request, res: Response) => {
 /* Given a track id return the associated track. */
 app.get("/tracks/:trackId", async (req: Request, res: Response,) => {
 
-    /*Parse trackId param to integer */
+    /*Parse trackId param and validate */
     const trackId = Number.parseInt(req.params.trackId)
-
-    /*400: Bad Request if trackId not valid */
     if (typeof trackId !== 'number') {
         res.status(400).json({error: "INVALID_TRACK_ID"})
     }
 
-    // /*pick specific track by id (0-index shift). */
-    // let data: Track[] = [tracks[trackId-1]];
-
-    const data = await AppDataSource.getRepository(Track)
+    /* Fetch one track from db */
+    const track = await AppDataSource.getRepository(Track)
         .createQueryBuilder("track")
         .where("track.id = :id", {id: trackId})
         .getOne()
 
-    /*Return array of 1 track(s) */
+    /* try and find and update track image */
+    if (track && track.image === null) {
+        const imageUrl = await internals.getAlbumCover(track.artist, track.title)
+        if (imageUrl.length > 4) {
+            await internals.updateAlbumCover(track.id, imageUrl)
+            track.image = imageUrl;
+        }
+    }
+
+    /* Send back empty array if null response */
+    const data = track !== null
+        ? [track]
+        : [];
+
+    /*Return  array of 1 track(s) */
     res.json(data);
 })
 

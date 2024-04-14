@@ -7,6 +7,9 @@ export class Artist {
 
     @Column()
     name: string
+
+    @OneToMany((type) => Track, (track) => track.artist, {eager: true})
+    tracks: Track[]
 }
 
 @Entity("track")
@@ -17,6 +20,12 @@ export class Track {
     @Column()
     title: string
 
-    @ManyToOne(() => Artist, (artist) => artist.name, {eager: true})
-    artist_id: Artist
+    @Column()
+    artist: string
+
+    @Column({
+        type: "text",
+        nullable: true
+    })
+    image: string
 }
