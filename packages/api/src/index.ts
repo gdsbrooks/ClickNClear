@@ -4,6 +4,8 @@ import express, {Express, NextFunction, Request, Response} from 'express';
 import {AppDataSource, Artist, Track} from './db'
 import {ILike} from "typeorm";
 import {TrackFilters} from 'types';
+import {ILike} from "typeorm";
+import {undefined} from "zod";
 
 dotenv.config();
 
@@ -21,25 +23,20 @@ app.use(cors({origin: 'http://localhost:5173'}))
 app.get("/tracks", async (req: Request, res: Response) => {
 
     /* Destructure querystring filters */
-    const {artist, title}: TrackFilters = req.query;
-
-    // /* Get ALL tracks */
-    // let data: Track[] = tracks;
+    const {artist}= req.query;
 
     // /* TYPE-ORM: Initiate QueryBuilder */
-    const data = await AppDataSource.getRepository(Track)
-        .createQueryBuilder("track")
-        .getMany()
+    const trackQb = AppDataSource.getRepository(Track)
+        .createQueryBuilder("track");
 
-    /*Add WHERE ILIKE qs.artist */
+    /*Add WHERE ILIKE artist */
     if (artist && typeof artist === "string") {
+        trackQb.where({artist: ILike(`%${artist}%`)})
     }
 
-    /*Add WHERE ILIKE qs.title */
-    if (title && typeof title === "string") {
-    }
+    const data = await trackQb.getMany()
 
-    /* Return filtered tracks */
+    /* Return tracks */
     res.json(data);
 });
 
