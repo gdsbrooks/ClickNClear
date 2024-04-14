@@ -1,8 +1,10 @@
 import {useEffect, useState} from "react";
-import {Track} from "types";
+import type {Track} from "types";
 import {fetchAllTracks, fetchTracksByArtist} from "./fetchApi.tsx";
 import "./App.css";
 import TrackCard from "./components/TrackCard.tsx";
+import {Flex, Layout, List, Typography} from "antd";
+import SearchBar from "./components/SearchBar.tsx";
 
 function App() {
     /* State */
@@ -11,6 +13,7 @@ function App() {
     const [results, setResults] = useState<Track[]>([]);
     const [input, setInput] = useState("");
     const [trackId, setTrackId] = useState<number>(0);
+    let allTracks: Track[] = [];
 
     /* Initial data fetch */
     useEffect(() => {
@@ -18,8 +21,9 @@ function App() {
                 try {
                     const response = await fetchAllTracks()
                     setResults(response)
+                    allTracks = response;
                 } catch (err) {
-                    setError(err.msg)
+                    setError(err)
                     setResults([])
                 } finally {
                     setLoading(false)
@@ -36,47 +40,50 @@ function App() {
         setResults(results)
     };
 
+
     return (
         <div className="App">
-            <div className="body">
-            <div className="left">
-                <div className="search-bar-container">
-                    <div className="input-wrapper">
-                        <input
-                            id="search-bar"
-                            placeholder="Search by Artist..."
-                            value={input}
-                            onChange={(e) => handleChange(e.target.value)}
-                        />
-                    </div>
-                </div>
-                <div className="results">
-                    {loading && (<div className="loading">Loading...</div>)}
-                    {error && (<div className="error">{`HTTP Error fetching tracks: ${error}`}</div>)}
-                    {results && (
-                        <ul className="results-list">
-                            {results && results.map((track) => {
-                                return (
-                                    <li key={track.id} className="track" onClick={ () => setTrackId(track.id)}>
-                                        <h2>{track.artist}</h2>
-                                        <h3>{track.title}</h3>
-                                    </li>
+            <Layout className="layout">
+                <Layout.Sider className="side-bar">
+                    <SearchBar
+                        inputValue={input}
+                        handleChange={handleChange}
+                        results={allTracks}
+                    />
+                    <List className="results-list"
+                          loading={loading}
+                          dataSource={results}
+                          renderItem={(track) => (
+                              <div className={track.id === trackId ? "list-item selected-track" : "list-item"}
+                                   key={track.id}
+                                   onClick={() => setTrackId(track.id)}
+                              >
+                                  <Typography.Title level={5}>{track.title}</Typography.Title>
+                                  <Typography.Text strong>{track.artist}</Typography.Text>
+                              </div>
 
-                                )
-                            })}
-                        </ul>
-                    )}
-                </div>
-            </div>
-            <div className="right">
-                {trackId === 0 && (<div className="empty-track"> Please select a track...</div>)}
-                {trackId > 0 && <TrackCard trackId={trackId}/>}
-            </div>
-        </div>
-        </div>
+                          )}
+                    />
+                </Layout.Sider>
 
-    )
-        ;
+                <Layout.Content className="content">
+                    <Layout.Header className="header">
+                        <Flex justify="space-around"
+                              align="center"
+                        >
+                            <Typography.Title level={1}>
+                                Tracks on Tracks on Tracks
+                            </Typography.Title>
+                        </Flex>
+                    </Layout.Header>
+                    <Flex vertical justify="center" align="center">
+                    {trackId === 0 && (<div className="empty-track"> Please select a track...</div>)}
+                    {trackId > 0 && <TrackCard trackId={trackId}/>}
+                    </Flex>
+                </Layout.Content>
+            </Layout>
+        </div>
+    );
 }
 
 export default App;
