@@ -81,7 +81,7 @@ app.get("/tracks/:trackId", async (req: Request, res: Response,) => {
     /* try and find and update track image */
     if (track && track.image === null) {
         const imageUrl = await internals.getAlbumCover(track.artist, track.title)
-        if (imageUrl.length > 4) {
+        if (imageUrl !== null ) {
             await internals.updateAlbumCover(track.id, imageUrl)
             track.image = imageUrl;
         }
