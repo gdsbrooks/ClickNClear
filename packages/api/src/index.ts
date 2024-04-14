@@ -18,6 +18,7 @@ app.use(cors({origin: 'http://localhost:5173'}))
 /* Initiate internals */
 const internals: any = {};
 
+/*Find the album cover if the image address isn't already stored */
 internals.getAlbumCover = async (artist: string, title: string): Promise<string | null> => {
     const apiUrl = `https://ws.audioscrobbler.com//2.0/?method=track.getInfo&api_key=${process.env.LAST_FM_API_KEY}&artist=${encodeURIComponent(artist)}&track=${encodeURIComponent(title)}&format=json`
     try {
