@@ -3,8 +3,9 @@ import type {Track} from "types";
 import {fetchAllTracks, fetchTracksByArtist} from "./fetchApi.tsx";
 import "./App.css";
 import TrackCard from "./components/TrackCard.tsx";
-import {Flex, Layout, List, Typography} from "antd";
+import {Flex, Layout, Typography} from "antd";
 import SearchBar from "./components/SearchBar.tsx";
+import Results from "./components/Results.tsx";
 
 function App() {
     /* State */
@@ -13,7 +14,6 @@ function App() {
     const [results, setResults] = useState<Track[]>([]);
     const [input, setInput] = useState("");
     const [trackId, setTrackId] = useState<number>(0);
-    let allTracks: Track[] = [];
 
     /* Initial data fetch */
     useEffect(() => {
@@ -21,10 +21,10 @@ function App() {
                 try {
                     const response = await fetchAllTracks()
                     setResults(response)
-                    allTracks = response;
                 } catch (err) {
                     setError(err)
                     setResults([])
+                    console.error(error)
                 } finally {
                     setLoading(false)
                 }
@@ -48,36 +48,22 @@ function App() {
                     <SearchBar
                         inputValue={input}
                         handleChange={handleChange}
-                        results={allTracks}
                     />
-                    <List className="results-list"
-                          loading={loading}
-                          dataSource={results}
-                          renderItem={(track) => (
-                              <div className={track.id === trackId ? "list-item selected-track" : "list-item"}
-                                   key={track.id}
-                                   onClick={() => setTrackId(track.id)}
-                              >
-                                  <Typography.Title level={5}>{track.title}</Typography.Title>
-                                  <Typography.Text strong>{track.artist}</Typography.Text>
-                              </div>
-
-                          )}
-                    />
+                    <Results
+                        loading={loading}
+                        trackId={trackId}
+                        results={results}
+                        handleClick={(value) => setTrackId(value)}
+                        />
                 </Layout.Sider>
-
                 <Layout.Content className="content">
                     <Layout.Header className="header">
-                        <Flex justify="space-around"
-                              align="center"
-                        >
+
                             <Typography.Title level={1}>
                                 Tracks on Tracks on Tracks
                             </Typography.Title>
-                        </Flex>
                     </Layout.Header>
                     <Flex vertical justify="center" align="center">
-                    {trackId === 0 && (<div className="empty-track"> Please select a track...</div>)}
                     {trackId > 0 && <TrackCard trackId={trackId}/>}
                     </Flex>
                 </Layout.Content>

@@ -1,38 +1,21 @@
-import {Input, Select} from 'antd';
-import type {SelectProps} from 'antd';
-import type {Track} from "types";
+import {Input} from 'antd';
 
 type SearchProps = {
-    handleChange: () => void,
+    handleChange: (input: string) => void,
     inputValue: string,
-    results: Track[]
 }
 
 const SearchBar = (props: SearchProps) => {
 
-    const {handleChange, inputValue, results} = props;
-
-    const filterOption = (input: string, option: { label: string; value: string }) =>
-        (option.label ?? '').toLowerCase().includes(input.toLowerCase());
-
-    const options: SelectProps['options'] = results.map((track) => {
-        return {
-            value: track.id,
-            label: track.artist
-        }
-    })
-
+    const {handleChange, inputValue} = props;
 
     return (
         <div className="input-wrapper">
             <Input className="search-bar"
                    value={inputValue}
                    autoFocus={true}
-                   placeholder="Select a track..."
-                   optionFilterProp="children"
+                   placeholder="Search by artist..."
                    onChange={(e) => handleChange(e.target.value)}
-                   filterOption={filterOption}
-                   options={options}
             />
         </div>
     );
